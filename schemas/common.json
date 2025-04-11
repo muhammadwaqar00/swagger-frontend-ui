@@ -1,0 +1,51 @@
+{
+  "schemas": {
+    "ApiResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean",
+          "description": "Indicates if the request was successful"
+        },
+        "message": {
+          "type": "string",
+          "description": "Response message"
+        },
+        "data": {
+          "type": "object",
+          "description": "Response data"
+        }
+      }
+    },
+    "Error": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean",
+          "default": false,
+          "description": "Always false for error responses"
+        },
+        "message": {
+          "type": "string",
+          "description": "Error message"
+        },
+        "errors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "field": {
+                "type": "string",
+                "description": "Field with error"
+              },
+              "message": {
+                "type": "string",
+                "description": "Error message for the field"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
