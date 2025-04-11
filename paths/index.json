@@ -1,0 +1,13 @@
+{
+	"paths": {
+		"/api/v1/user/signup": {
+			"$ref": "./auth.json#/signup"
+		},
+		"/api/v1/user/login": {
+			"$ref": "./auth.json#/login"
+		},
+		"/api/v1/user/profile": {
+			"$ref": "./user.json#/profile"
+		}
+	}
+}

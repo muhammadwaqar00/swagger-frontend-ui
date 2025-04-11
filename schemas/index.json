@@ -1,0 +1,27 @@
+{
+	"components": {
+		"schemas": {
+			"SignupRequest": {
+				"$ref": "./auth.json#/SignupRequest"
+			},
+			"SignupResponse": {
+				"$ref": "./auth.json#/SignupResponse"
+			},
+			"SigninRequest": {
+				"$ref": "./auth.json#/SigninRequest"
+			},
+			"SigninResponse": {
+				"$ref": "./auth.json#/SigninResponse"
+			},
+			"auth": {
+				"$ref": "./auth.json#/schemas"
+			},
+			"user": {
+				"$ref": "./user.json#/schemas"
+			},
+			"common": {
+				"$ref": "./common.json#/schemas"
+			}
+		}
+	}
+}
