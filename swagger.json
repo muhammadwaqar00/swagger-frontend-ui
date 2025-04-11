@@ -1,166 +1,767 @@
 {
-  "openapi": "3.0.0",
-  "info": {
-    "title": "Sample API",
-    "description": "A sample API to demonstrate Swagger/OpenAPI specification",
-    "version": "1.0.0",
-    "contact": {
-      "email": "contact@example.com"
-    }
-  },
-  "servers": [
-    {
-      "url": "http://localhost:3000",
-      "description": "Local development server"
-    }
-  ],
-  "tags": [
-    {
-      "name": "demo",
-      "description": "Demo API endpoints"
-    },
-    {
-      "name": "auth",
-      "description": "Authentication endpoints"
-    }
-  ],
-  "paths": {
-    "/api/hello": {
-      "get": {
-        "tags": ["demo"],
-        "summary": "Returns a hello message",
-        "description": "A simple endpoint that returns a hello message",
-        "operationId": "getHello",
-        "responses": {
-          "200": {
-            "description": "Successful operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HelloResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/signup": {
-      "post": {
-        "tags": ["auth"],
-        "summary": "Register a new user",
-        "description": "Creates a new user account with the provided information",
-        "operationId": "signupUser",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SignupRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "User successfully created",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SignupResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid input"
-          },
-          "409": {
-            "description": "User already exists"
-          }
-        }
-      }
-    }
-  },
-  "components": {
-    "schemas": {
-      "HelloResponse": {
-        "type": "object",
-        "properties": {
-          "message": {
-            "type": "string",
-            "example": "Hello from Swagger API!"
-          }
-        }
-      },
-      "SignupRequest": {
-        "type": "object",
-        "required": ["username", "email", "password"],
-        "properties": {
-          "username": {
-            "type": "string",
-            "example": "john_doe",
-            "description": "Unique username for the account"
-          },
-          "email": {
-            "type": "string",
-            "format": "email",
-            "example": "user@example.com",
-            "description": "Email address of the user"
-          },
-          "password": {
-            "type": "string",
-            "format": "password",
-            "example": "securePassword123",
-            "description": "Password for the account (minimum 8 characters)"
-          },
-          "fullName": {
-            "type": "string",
-            "example": "John Doe",
-            "description": "Full name of the user (optional)"
-          }
-        }
-      },
-      "SignupResponse": {
-        "type": "object",
-        "properties": {
-          "success": {
-            "type": "boolean",
-            "example": true
-          },
-          "message": {
-            "type": "string",
-            "example": "User registered successfully"
-          },
-          "user": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "integer",
-                "format": "int64",
-                "example": 123
-              },
-              "username": {
-                "type": "string",
-                "example": "john_doe"
-              },
-              "email": {
-                "type": "string",
-                "example": "user@example.com"
-              },
-              "createdAt": {
-                "type": "string",
-                "format": "date-time",
-                "example": "2025-04-10T14:30:00Z"
-              }
-            }
-          },
-          "token": {
-            "type": "string",
-            "example": "mock-jwt-token-abc123"
-          }
-        }
-      }
-    }
-  }
+	"openapi": "3.0.0",
+	"info": {
+		"title": "Authentication API",
+		"description": "A sample API to demonstrate Swagger/OpenAPI specification",
+		"version": "1.0.0",
+		"contact": {
+			"email": "contact@example.com"
+		}
+	},
+	"servers": [
+		{
+			"url": "http://localhost:3000",
+			"description": "Local development server"
+		}
+	],
+	"tags": [
+		{
+			"name": "authentication",
+			"description": "Authentication endpoints"
+		}
+	],
+	"components": {
+		"securitySchemes": {
+			"BearerAuth": {
+				"type": "http",
+				"scheme": "bearer",
+				"bearerFormat": "JWT",
+				"description": "Enter your JWT token in the format: Bearer <token>"
+			}
+		},
+		"schemas": {
+			"SignupRequest": {
+				"type": "object",
+				"required": [
+					"email",
+					"password",
+					"firstName",
+					"lastName",
+					"phoneNumberCode",
+					"phoneNumber"
+				],
+				"properties": {
+					"firstName": {
+						"type": "string",
+						"example": "John",
+						"description": "First name of the user"
+					},
+					"lastName": {
+						"type": "string",
+						"example": "Doe",
+						"description": "Last name of the user"
+					},
+					"email": {
+						"type": "string",
+						"format": "email",
+						"example": "user@example.com",
+						"description": "Email address of the user"
+					},
+					"password": {
+						"type": "string",
+						"format": "password",
+						"example": "securePassword123",
+						"description": "Password for the account (minimum 8 characters)"
+					},
+					"phoneNumberCode": {
+						"type": "string",
+						"example": "+1",
+						"description": "Country code for phone number"
+					},
+					"phoneNumber": {
+						"type": "string",
+						"example": "2345678901",
+						"description": "Phone number without country code"
+					}
+				}
+			},
+			"SignupResponse": {
+				"type": "object",
+				"properties": {
+					"success": {
+						"type": "boolean",
+						"example": true
+					},
+					"message": {
+						"type": "string",
+						"example": "User registered successfully"
+					},
+					"data": {
+						"type": "object",
+						"properties": {
+							"user": {
+								"type": "object",
+								"properties": {
+									"id": {
+										"type": "integer",
+										"format": "int64",
+										"example": 123
+									},
+									"email": {
+										"type": "string",
+										"example": "user@example.com"
+									},
+									"firstName": {
+										"type": "string",
+										"example": "John"
+									},
+									"lastName": {
+										"type": "string",
+										"example": "Doe"
+									},
+									"phoneNumberCode": {
+										"type": "string",
+										"example": "+1"
+									},
+									"phoneNumber": {
+										"type": "string",
+										"example": "2345678901"
+									},
+									"isEmailVerified": {
+										"type": "boolean",
+										"example": false
+									},
+									"isPhoneVerified": {
+										"type": "boolean",
+										"example": false
+									},
+									"createdAt": {
+										"type": "string",
+										"format": "date-time",
+										"example": "2025-04-10T14:30:00Z"
+									}
+								}
+							},
+							"token": {
+								"type": "string",
+								"example": "mock-jwt-token-abc123"
+							}
+						}
+					}
+				}
+			},
+			"SigninRequest": {
+				"type": "object",
+				"required": ["userName", "password"],
+				"properties": {
+					"userName": {
+						"type": "string",
+						"example": "a@b.com",
+						"description": "Email address or phone number of the user"
+					},
+					"password": {
+						"type": "string",
+						"format": "password",
+						"example": "securePassword123",
+						"description": "Password for the account (minimum 8 characters)"
+					}
+				}
+			},
+			"SigninResponse": {
+				"type": "object",
+				"properties": {
+					"success": {
+						"type": "boolean",
+						"example": true
+					},
+					"message": {
+						"type": "string",
+						"example": "User logged-in successfully"
+					},
+					"data": {
+						"type": "object",
+						"properties": {
+							"user": {
+								"type": "object",
+								"properties": {
+									"id": {
+										"type": "integer",
+										"format": "int64",
+										"example": 123
+									},
+									"email": {
+										"type": "string",
+										"example": "user@example.com"
+									},
+									"firstName": {
+										"type": "string",
+										"example": "John"
+									},
+									"lastName": {
+										"type": "string",
+										"example": "Doe"
+									},
+									"phoneNumberCode": {
+										"type": "string",
+										"example": "+1"
+									},
+									"phoneNumber": {
+										"type": "string",
+										"example": "2345678901"
+									},
+									"isEmailVerified": {
+										"type": "boolean",
+										"example": false
+									},
+									"isPhoneVerified": {
+										"type": "boolean",
+										"example": false
+									},
+									"createdAt": {
+										"type": "string",
+										"format": "date-time",
+										"example": "2025-04-10T14:30:00Z"
+									}
+								}
+							},
+							"token": {
+								"type": "string",
+								"example": "mock-jwt-token-abc123"
+							}
+						}
+					}
+				}
+			},
+			"SocialLoginRequest": {
+				"type": "object",
+				"required": ["provider", "token"],
+				"properties": {
+					"provider": {
+						"type": "string",
+						"enum": ["google", "apple"],
+						"example": "google",
+						"description": "Social login provider"
+					},
+					"token": {
+						"type": "string",
+						"example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+						"description": "OAuth token from the provider"
+					}
+				}
+			},
+			"ProfileResponse": {
+				"type": "object",
+				"properties": {
+					"success": {
+						"type": "boolean",
+						"example": true
+					},
+					"message": {
+						"type": "string",
+						"example": "Profile fetched successfully"
+					},
+					"data": {
+						"type": "object",
+						"properties": {
+							"user": {
+								"type": "object",
+								"properties": {
+									"id": {
+										"type": "integer",
+										"format": "int64",
+										"example": 123
+									},
+									"email": {
+										"type": "string",
+										"example": "user@example.com"
+									},
+									"firstName": {
+										"type": "string",
+										"example": "John"
+									},
+									"lastName": {
+										"type": "string",
+										"example": "Doe"
+									},
+									"phoneNumberCode": {
+										"type": "string",
+										"example": "+1"
+									},
+									"phoneNumber": {
+										"type": "string",
+										"example": "2345678901"
+									},
+									"isEmailVerified": {
+										"type": "boolean",
+										"example": false
+									},
+									"isPhoneVerified": {
+										"type": "boolean",
+										"example": false
+									},
+									"createdAt": {
+										"type": "string",
+										"format": "date-time",
+										"example": "2025-04-10T14:30:00Z"
+									}
+								}
+							}
+						}
+					}
+				}
+			},
+			"ForgotPasswordRequest": {
+				"type": "object",
+				"required": ["email"],
+				"properties": {
+					"email": {
+						"type": "string",
+						"format": "email",
+						"example": "user@example.com",
+						"description": "Email address of the user"
+					}
+				}
+			},
+			"VerifyTokenRequest": {
+				"type": "object",
+				"required": ["token", "email"],
+				"properties": {
+					"email": {
+						"type": "string",
+						"format": "email",
+						"example": "user@example.com",
+						"description": "Email address of the user"
+					},
+					"token": {
+						"type": "string",
+						"example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+						"description": "Verification token received via email"
+					}
+				}
+			},
+			"ResetPasswordRequest": {
+				"type": "object",
+				"required": ["token", "newPassword", "email"],
+				"properties": {
+					"email": {
+						"type": "string",
+						"format": "email",
+						"example": "user@example.com",
+						"description": "Email address of the user"
+					},
+					"token": {
+						"type": "string",
+						"example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+						"description": "Reset password token"
+					},
+					"newPassword": {
+						"type": "string",
+						"format": "password",
+						"example": "newSecurePassword123",
+						"description": "New password (minimum 8 characters)"
+					}
+				}
+			},
+			"VerifyPhoneRequest": {
+				"type": "object",
+				"required": ["otp"],
+				"properties": {
+					"otp": {
+						"type": "string",
+						"example": "123456",
+						"description": "OTP received via SMS"
+					}
+				}
+			},
+			"MessageResponse": {
+				"type": "object",
+				"properties": {
+					"success": {
+						"type": "boolean",
+						"example": true
+					},
+					"message": {
+						"type": "string",
+						"example": "Operation completed successfully"
+					}
+				}
+			}
+		}
+	},
+	"paths": {
+		"/api/signup": {
+			"post": {
+				"tags": ["Auth"],
+				"summary": "Register a new user",
+				"description": "Creates a new user account with the provided information",
+				"operationId": "signupUser",
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"email": { "type": "string" },
+									"firstName": { "type": "string" },
+									"lastName": { "type": "string" },
+									"phoneNumberCode": { "type": "string" },
+									"phoneNumber": { "type": "string" },
+									"password": { "type": "string" }
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"201": {
+						"description": "User registered successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/SignupResponse"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Invalid input"
+					},
+					"409": {
+						"description": "User already exists"
+					}
+				}
+			}
+		},
+		"/api/login": {
+			"post": {
+				"tags": ["Auth"],
+				"summary": "Logs in user",
+				"description": "Logs in user account with the provided information",
+				"operationId": "loginUser",
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"userName": { "type": "string" },
+									"password": { "type": "string" }
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Login successful",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/SigninResponse"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Invalid input"
+					}
+				}
+			}
+		},
+		"/api/social-login": {
+			"post": {
+				"tags": ["Auth"],
+				"summary": "Social login with Google or Apple",
+				"description": "Authenticate user using social provider tokens",
+				"operationId": "socialLogin",
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"provider": { "type": "string" },
+									"token": { "type": "string" }
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Social login successful",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/SigninResponse"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Invalid input or token"
+					}
+				}
+			}
+		},
+		"/api/profile": {
+			"get": {
+				"tags": ["User"],
+				"summary": "Get user profile",
+				"description": "Retrieves the profile information of the logged-in user",
+				"operationId": "getProfile",
+				"security": [{ "BearerAuth": [] }],
+				"parameters": [
+					{
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"type": "string"
+						},
+						"required": true,
+						"description": "JWT token (Bearer <token>)",
+						"example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Profile fetched successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ProfileResponse"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized access"
+					}
+				}
+			}
+		},
+		"/api/forgot-password": {
+			"post": {
+				"tags": ["Auth"],
+				"summary": "Request password reset",
+				"description": "Send password reset link to user's email",
+				"operationId": "forgotPassword",
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"email": { "type": "string" }
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Password reset link sent",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"success": {
+											"type": "boolean",
+											"example": true
+										},
+										"message": {
+											"type": "string",
+											"example": "Password reset link sent successfully"
+										},
+										"data": {
+											"type": "object",
+											"properties": {},
+											"example": {}
+										}
+									}
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "User not found"
+					}
+				}
+			}
+		},
+		"/api/verify-reset-token": {
+			"post": {
+				"tags": ["Auth"],
+				"summary": "Verify reset password token",
+				"description": "Validates the reset password token from email link",
+				"operationId": "verifyResetToken",
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"token": { "type": "string" },
+									"email": { "type": "string" }
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Token verified",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/MessageResponse"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Invalid or expired token"
+					}
+				}
+			}
+		},
+		"/api/reset-password": {
+			"post": {
+				"tags": ["Auth"],
+				"summary": "Reset password",
+				"description": "Set new password using valid reset token",
+				"operationId": "resetPassword",
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"token": { "type": "string" },
+									"email": { "type": "string" },
+									"newPassword": { "type": "string" }
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Password reset successful",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/MessageResponse"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Invalid token or password"
+					}
+				}
+			}
+		},
+		"/api/verify-email": {
+			"post": {
+				"tags": ["Auth"],
+				"summary": "Verify email address",
+				"description": "Verify user's email address using verification token",
+				"operationId": "verifyEmail",
+				"security": [{ "BearerAuth": [] }],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"token": { "type": "string" }
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Email verified successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"success": {
+											"type": "boolean",
+											"example": true
+										},
+										"message": {
+											"type": "string",
+											"example": "Email verified successfully"
+										},
+										"data": {
+											"type": "object",
+											"properties": {},
+											"example": {}
+										}
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Invalid or expired token"
+					}
+				}
+			}
+		},
+		"/api/verify-phone": {
+			"post": {
+				"tags": ["Auth"],
+				"summary": "Verify phone number",
+				"description": "Verify user's phone number using OTP",
+				"operationId": "verifyPhone",
+				"security": [{ "BearerAuth": [] }],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"otp": { "type": "string" }
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Phone verified successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"success": {
+											"type": "boolean",
+											"example": true
+										},
+										"message": {
+											"type": "string",
+											"example": "Phone verified successfully"
+										},
+										"data": {
+											"type": "object",
+											"properties": {},
+											"example": {}
+										}
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Invalid OTP"
+					}
+				}
+			}
+		}
+	}
 }
