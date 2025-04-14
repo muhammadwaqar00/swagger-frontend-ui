@@ -723,121 +723,282 @@ app.post('/api/v1/consultations/:id/reschedule', verifyToken, (req, res) => {
 });
 
 // Mock data for experts
-const experts = Array(10).fill(null).map((_, index) => ({
-    id: index + 1,
-    name: `Dr. Expert ${index + 1}`,
-    imageUrl: `https://example.com/experts/expert-${index + 1}.jpg`,
-    specialization: index % 2 === 0 ? "Islamic Law" : "Family Law",
-    rate: 100 + (index * 50),
-    rateCurrency: "USD",
-    experience: 5 + (index % 15),
-    type: index % 2 === 0 ? "legal" : "shariah"
-}));
+const experts = Array(10)
+	.fill(null)
+	.map((_, index) => ({
+		id: index + 1,
+		name: `Dr. Expert ${index + 1}`,
+		imageUrl: `https://example.com/experts/expert-${index + 1}.jpg`,
+		specialization: index % 2 === 0 ? 'Islamic Law' : 'Family Law',
+		rate: 100 + index * 50,
+		rateCurrency: 'USD',
+		experience: 5 + (index % 15),
+		type: index % 2 === 0 ? 'legal' : 'shariah',
+	}));
 
 // Get experts list with type filtering and pagination
 app.get('/api/v1/experts', verifyToken, (req, res) => {
-    const { type = 'legal', page = 1, limit = 10 } = req.query;
+	const { type = 'legal', page = 1, limit = 10 } = req.query;
 
-    // Filter experts by type
-    const filteredExperts = experts.filter(expert => expert.type === type);
+	// Filter experts by type
+	const filteredExperts = experts.filter((expert) => expert.type === type);
 
-    // Calculate pagination
-    const startIndex = (parseInt(page) - 1) * parseInt(limit);
-    const endIndex = startIndex + parseInt(limit);
-    const paginatedExperts = filteredExperts.slice(startIndex, endIndex);
+	// Calculate pagination
+	const startIndex = (parseInt(page) - 1) * parseInt(limit);
+	const endIndex = startIndex + parseInt(limit);
+	const paginatedExperts = filteredExperts.slice(startIndex, endIndex);
 
-    res.status(200).json({
-        success: true,
-        message: 'Experts retrieved successfully',
-        data: {
-            experts: paginatedExperts,
-            total: filteredExperts.length
-        }
-    });
+	res.status(200).json({
+		success: true,
+		message: 'Experts retrieved successfully',
+		data: {
+			experts: paginatedExperts,
+			total: filteredExperts.length,
+		},
+	});
 });
 
 // Get expert's available time slots
 app.get('/api/v1/experts/:id/time-slots', verifyToken, (req, res) => {
-    const expertId = parseInt(req.params.id);
-    const date = req.query.date;
+	const expertId = parseInt(req.params.id);
+	const date = req.query.date;
 
-    // Check if expert exists
-    const expert = experts.find(e => e.id === expertId);
-    if (!expert) {
+	// Check if expert exists
+	const expert = experts.find((e) => e.id === expertId);
+	if (!expert) {
+		return res.status(404).json({
+			success: false,
+			message: 'Expert not found',
+			data: {},
+		});
+	}
+
+	// Generate mock time slots (9 AM to 5 PM, 1-hour slots)
+	const timeSlots = [];
+	for (let hour = 9; hour < 17; hour++) {
+		// Randomly mark some slots as unavailable
+		const isAvailable = Math.random() > 0.3;
+		timeSlots.push({
+			startTime: `${hour.toString().padStart(2, '0')}:00`,
+			endTime: `${(hour + 1).toString().padStart(2, '0')}:00`,
+			isAvailable,
+		});
+	}
+
+	res.status(200).json({
+		success: true,
+		message: 'Time slots retrieved successfully',
+		data: {
+			timeSlots,
+		},
+	});
+});
+
+// Book consultation endpoint
+app.post('/api/v1/consultations/book', verifyToken, (req, res) => {
+	const { expertId, bookingDate, timeSlot, paymentToken } = req.body;
+
+	// Find expert
+	const expert = experts.find((e) => e.id === expertId);
+	if (!expert) {
+		return res.status(404).json({
+			success: false,
+			message: 'Expert not found',
+			data: {},
+		});
+	}
+
+	// Mock validation of payment token
+	if (!paymentToken) {
+		return res.status(400).json({
+			success: false,
+			message: 'Invalid payment token',
+			data: {},
+		});
+	}
+
+	// Create new consultation
+	const newConsultation = {
+		id: consultations.length + 1,
+		expertName: expert.name,
+		expertImage: expert.imageUrl,
+		specialization: expert.specialization,
+		bookingDate,
+		bookingTime: timeSlot,
+		status: 'confirmed',
+		createdAt: new Date().toISOString(),
+		experience: expert.experience,
+		duration: 60,
+		meetingUrl: `https://meet.example.com/consultation-${
+			consultations.length + 1
+		}`,
+	};
+
+	// Add to consultations array
+	consultations.push(newConsultation);
+
+	res.status(201).json({
+		success: true,
+		message: 'Consultation booked successfully',
+		data: {
+			consultation: newConsultation,
+		},
+	});
+});
+
+// Mock data for legacy items
+const legacyItems = Array(40)
+	.fill(null)
+	.map((_, index) => {
+		const types = ['document', 'photo', 'video', 'audio'];
+		const type = types[index % 4];
+
+		const getFileUrl = (type) => {
+			switch (type) {
+				case 'document':
+					return `https://example.com/documents/doc-${index + 1}.pdf`;
+				case 'photo':
+					return `https://example.com/photos/photo-${index + 1}.jpg`;
+				case 'video':
+					return `https://example.com/videos/video-${index + 1}.mp4`;
+				case 'audio':
+					return `https://example.com/audios/audio-${index + 1}.mp3`;
+			}
+		};
+
+		return {
+			id: index + 1,
+			title: `Legacy ${type} ${index + 1}`,
+			description: `This is a ${type} legacy item description ${
+				index + 1
+			}`,
+			fileUrl: getFileUrl(type),
+			type,
+			createdAt: new Date(
+				Date.now() - index * 24 * 60 * 60 * 1000
+			).toISOString(),
+		};
+	});
+
+// Get legacy items with type filtering and pagination
+app.get('/api/v1/legacy', verifyToken, (req, res) => {
+	const { type = 'document', page = 1, limit = 10, search = '' } = req.query;
+
+	// Filter by type and search term
+	const filteredItems = legacyItems.filter((item) => {
+		const matchesType = item.type === type;
+		const matchesSearch = search
+			? item.title.toLowerCase().includes(search.toLowerCase()) ||
+			  item.description.toLowerCase().includes(search.toLowerCase())
+			: true;
+		return matchesType && matchesSearch;
+	});
+
+	// Calculate pagination
+	const startIndex = (parseInt(page) - 1) * parseInt(limit);
+	const endIndex = startIndex + parseInt(limit);
+	const paginatedItems = filteredItems.slice(startIndex, endIndex);
+
+	res.status(200).json({
+		success: true,
+		message: 'Legacy items retrieved successfully',
+		data: {
+			items: paginatedItems,
+			total: filteredItems.length,
+		},
+	});
+});
+
+// Get legacy item details
+app.get('/api/v1/legacy/:id', verifyToken, (req, res) => {
+    const itemId = parseInt(req.params.id);
+    const item = legacyItems.find(item => item.id === itemId);
+
+    if (!item) {
         return res.status(404).json({
             success: false,
-            message: 'Expert not found',
+            message: 'Legacy item not found',
             data: {}
-        });
-    }
-
-    // Generate mock time slots (9 AM to 5 PM, 1-hour slots)
-    const timeSlots = [];
-    for (let hour = 9; hour < 17; hour++) {
-        // Randomly mark some slots as unavailable
-        const isAvailable = Math.random() > 0.3;
-        timeSlots.push({
-            startTime: `${hour.toString().padStart(2, '0')}:00`,
-            endTime: `${(hour + 1).toString().padStart(2, '0')}:00`,
-            isAvailable
         });
     }
 
     res.status(200).json({
         success: true,
-        message: 'Time slots retrieved successfully',
+        message: 'Legacy item details retrieved successfully',
         data: {
-            timeSlots
+            items: [item],
+            total: 1
         }
     });
 });
 
-// Book consultation endpoint
-app.post('/api/v1/consultations/book', verifyToken, (req, res) => {
-    const { expertId, bookingDate, timeSlot, paymentToken } = req.body;
+// Create new legacy item
+app.post('/api/v1/legacy/create', verifyToken, (req, res) => {
+    const { title, description, fileUrl, tags, ownerId, type } = req.body;
 
-    // Find expert
-    const expert = experts.find(e => e.id === expertId);
-    if (!expert) {
-        return res.status(404).json({
-            success: false,
-            message: 'Expert not found',
-            data: {}
-        });
-    }
-
-    // Mock validation of payment token
-    if (!paymentToken) {
+    if (!['document', 'photo', 'video', 'audio'].includes(type)) {
         return res.status(400).json({
             success: false,
-            message: 'Invalid payment token',
+            message: 'Invalid item type',
             data: {}
         });
     }
 
-    // Create new consultation
-    const newConsultation = {
-        id: consultations.length + 1,
-        expertName: expert.name,
-        expertImage: expert.imageUrl,
-        specialization: expert.specialization,
-        bookingDate,
-        bookingTime: timeSlot,
-        status: 'confirmed',
+    const newItem = {
+        id: legacyItems.length + 1,
+        title,
+        description,
+        fileUrl,
+        type,
+        tags: tags || [],
+        ownerId,
+        fileSize: Math.floor(Math.random() * 10000000), // Mock file size
         createdAt: new Date().toISOString(),
-        experience: expert.experience,
-        duration: 60,
-        meetingUrl: `https://meet.example.com/consultation-${consultations.length + 1}`
+        thumbnail: ['photo', 'video'].includes(type) ? `https://example.com/thumbnails/${type}-${legacyItems.length + 1}.jpg` : null
     };
 
-    // Add to consultations array
-    consultations.push(newConsultation);
+    legacyItems.push(newItem);
 
     res.status(201).json({
         success: true,
-        message: 'Consultation booked successfully',
+        message: 'Legacy item created successfully',
         data: {
-            consultation: newConsultation
+            items: [newItem],
+            total: 1
+        }
+    });
+});
+
+// Update legacy item
+app.put('/api/v1/legacy/:id', verifyToken, (req, res) => {
+    const itemId = parseInt(req.params.id);
+    const { title, description, fileUrl, tags } = req.body;
+    const itemIndex = legacyItems.findIndex(item => item.id === itemId);
+
+    if (itemIndex === -1) {
+        return res.status(404).json({
+            success: false,
+            message: 'Legacy item not found',
+            data: {}
+        });
+    }
+
+    const updatedItem = {
+        ...legacyItems[itemIndex],
+        title: title || legacyItems[itemIndex].title,
+        description: description || legacyItems[itemIndex].description,
+        fileUrl: fileUrl || legacyItems[itemIndex].fileUrl,
+        tags: tags || legacyItems[itemIndex].tags
+    };
+
+    legacyItems[itemIndex] = updatedItem;
+
+    res.status(200).json({
+        success: true,
+        message: 'Legacy item updated successfully',
+        data: {
+            items: [updatedItem],
+            total: 1
         }
     });
 });

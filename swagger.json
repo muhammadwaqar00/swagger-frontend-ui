@@ -1070,6 +1070,124 @@
 						}
 					}
 				}
+			},
+			"LegacyItem": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "integer",
+						"description": "Legacy item ID"
+					},
+					"title": {
+						"type": "string",
+						"description": "Title of the legacy item"
+					},
+					"description": {
+						"type": "string",
+						"description": "Description of the legacy item"
+					},
+					"fileUrl": {
+						"type": "string",
+						"format": "uri",
+						"description": "URL of the legacy file"
+					},
+					"type": {
+						"type": "string",
+						"enum": ["document", "photo", "video", "audio"],
+						"description": "Type of legacy item"
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time",
+						"description": "When the item was created"
+					}
+				}
+			},
+			"LegacyResponse": {
+				"type": "object",
+				"properties": {
+					"success": {
+						"type": "boolean"
+					},
+					"message": {
+						"type": "string"
+					},
+					"data": {
+						"type": "object",
+						"properties": {
+							"items": {
+								"type": "array",
+								"items": {
+									"$ref": "#/components/schemas/LegacyItem"
+								}
+							},
+							"total": {
+								"type": "integer",
+								"description": "Total number of items available"
+							}
+						}
+					}
+				}
+			},
+			"CreateLegacyItemRequest": {
+				"type": "object",
+				"properties": {
+					"title": {
+						"type": "string",
+						"description": "Title of the legacy item"
+					},
+					"description": {
+						"type": "string",
+						"description": "Description of the legacy item"
+					},
+					"fileUrl": {
+						"type": "string",
+						"format": "uri",
+						"description": "URL of the legacy file"
+					},
+					"tags": {
+						"type": "array",
+						"items": {
+							"type": "string"
+						},
+						"description": "Array of tags associated with the item"
+					},
+					"ownerId": {
+						"type": "integer",
+						"description": "ID of the item owner"
+					},
+					"type": {
+						"type": "string",
+						"enum": ["document", "photo", "video", "audio"],
+						"description": "Type of legacy item"
+					}
+				},
+				"required": ["title", "fileUrl", "type", "ownerId"]
+			},
+			"UpdateLegacyItemRequest": {
+				"type": "object",
+				"properties": {
+					"title": {
+						"type": "string",
+						"description": "Updated title of the legacy item"
+					},
+					"description": {
+						"type": "string",
+						"description": "Updated description of the legacy item"
+					},
+					"fileUrl": {
+						"type": "string",
+						"format": "uri",
+						"description": "Updated URL of the legacy file"
+					},
+					"tags": {
+						"type": "array",
+						"items": {
+							"type": "string"
+						},
+						"description": "Updated array of tags"
+					}
+				}
 			}
 		}
 	},
@@ -2684,6 +2802,274 @@
 					},
 					"404": {
 						"description": "Expert not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/legacy": {
+			"get": {
+				"tags": ["Legacy"],
+				"summary": "Get legacy items",
+				"description": "Retrieve paginated list of legacy items filtered by type",
+				"security": [{ "BearerAuth": [] }],
+				"parameters": [
+					{
+						"in": "header",
+						"name": "Authorization",
+						"schema": { "type": "string" },
+						"required": true,
+						"description": "JWT token (Bearer <token>)",
+						"example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+					},
+					{
+						"in": "query",
+						"name": "type",
+						"schema": {
+							"type": "string",
+							"enum": ["document", "photo", "video", "audio"],
+							"default": "document"
+						},
+						"description": "Type of legacy items to retrieve"
+					},
+					{
+						"in": "query",
+						"name": "page",
+						"schema": {
+							"type": "integer",
+							"default": 1
+						},
+						"description": "Page number for pagination"
+					},
+					{
+						"in": "query",
+						"name": "limit",
+						"schema": {
+							"type": "integer",
+							"default": 10
+						},
+						"description": "Number of items per page"
+					},
+					{
+						"in": "query",
+						"name": "search",
+						"schema": {
+							"type": "string"
+						},
+						"description": "Search term for filtering items"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Legacy items retrieved successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/LegacyResponse"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized access",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/legacy/create": {
+			"post": {
+				"tags": ["Legacy"],
+				"summary": "Create new legacy item",
+				"description": "Add a new legacy item (document, photo, video, or audio)",
+				"security": [{ "BearerAuth": [] }],
+				"parameters": [
+					{
+						"in": "header",
+						"name": "Authorization",
+						"schema": { "type": "string" },
+						"required": true,
+						"description": "JWT token (Bearer <token>)",
+						"example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CreateLegacyItemRequest"
+							}
+						}
+					}
+				},
+				"responses": {
+					"201": {
+						"description": "Legacy item created successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/LegacyResponse"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Invalid input",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized access",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/legacy/{id}": {
+			"get": {
+				"tags": ["Legacy"],
+				"summary": "Get legacy item details",
+				"description": "Retrieve detailed information about a specific legacy item",
+				"security": [{ "BearerAuth": [] }],
+				"parameters": [
+					{
+						"in": "header",
+						"name": "Authorization",
+						"schema": { "type": "string" },
+						"required": true,
+						"description": "JWT token (Bearer <token>)",
+						"example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+					},
+					{
+						"in": "path",
+						"name": "id",
+						"schema": { "type": "integer" },
+						"required": true,
+						"description": "Legacy item ID"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Legacy item details retrieved successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/LegacyResponse"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized access",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Legacy item not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					}
+				}
+			},
+			"put": {
+				"tags": ["Legacy"],
+				"summary": "Update legacy item",
+				"description": "Update an existing legacy item",
+				"security": [{ "BearerAuth": [] }],
+				"parameters": [
+					{
+						"in": "header",
+						"name": "Authorization",
+						"schema": { "type": "string" },
+						"required": true,
+						"description": "JWT token (Bearer <token>)",
+						"example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+					},
+					{
+						"in": "path",
+						"name": "id",
+						"schema": { "type": "integer" },
+						"required": true,
+						"description": "Legacy item ID"
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/UpdateLegacyItemRequest"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Legacy item updated successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/LegacyResponse"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Invalid input",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized access",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Legacy item not found",
 						"content": {
 							"application/json": {
 								"schema": {
