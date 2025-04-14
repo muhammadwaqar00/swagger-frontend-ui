@@ -456,6 +456,195 @@
 						"example": {}
 					}
 				}
+			},
+			"EducationalResource": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "integer",
+						"description": "Resource ID"
+					},
+					"title": {
+						"type": "string",
+						"description": "Resource title"
+					},
+					"description": {
+						"type": "string",
+						"description": "Resource description"
+					},
+					"imageUrl": {
+						"type": "string",
+						"format": "uri",
+						"description": "URL of the resource image"
+					},
+					"isFeatured": {
+						"type": "boolean",
+						"description": "Whether this is a featured resource"
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time",
+						"description": "Resource creation timestamp"
+					}
+				}
+			},
+			"PaginatedResourcesResponse": {
+				"type": "object",
+				"properties": {
+					"success": {
+						"type": "boolean"
+					},
+					"message": {
+						"type": "string"
+					},
+					"data": {
+						"type": "object",
+						"properties": {
+							"resources": {
+								"type": "array",
+								"items": {
+									"$ref": "#/components/schemas/EducationalResource"
+								}
+							},
+							"total": {
+								"type": "integer",
+								"description": "Total number of resources available"
+							}
+						}
+					}
+				}
+			},
+			"Workshop": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "integer",
+						"description": "Workshop ID"
+					},
+					"title": {
+						"type": "string",
+						"description": "Workshop title"
+					},
+					"description": {
+						"type": "string",
+						"description": "Workshop description"
+					},
+					"mediaType": {
+						"type": "string",
+						"enum": ["image", "video"],
+						"description": "Type of media (image or video)"
+					},
+					"mediaUrl": {
+						"type": "string",
+						"format": "uri",
+						"description": "URL of the workshop media (image or video)"
+					},
+					"startDate": {
+						"type": "string",
+						"format": "date-time",
+						"description": "Workshop start date and time"
+					},
+					"endDate": {
+						"type": "string",
+						"format": "date-time",
+						"description": "Workshop end date and time"
+					},
+					"isUpcoming": {
+						"type": "boolean",
+						"description": "Whether this is an upcoming workshop"
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time",
+						"description": "Workshop creation timestamp"
+					}
+				}
+			},
+			"PaginatedWorkshopsResponse": {
+				"type": "object",
+				"properties": {
+					"success": {
+						"type": "boolean"
+					},
+					"message": {
+						"type": "string"
+					},
+					"data": {
+						"type": "object",
+						"properties": {
+							"workshops": {
+								"type": "array",
+								"items": {
+									"$ref": "#/components/schemas/Workshop"
+								}
+							},
+							"total": {
+								"type": "integer",
+								"description": "Total number of workshops available"
+							}
+						}
+					}
+				}
+			},
+			"DashboardResponse": {
+				"type": "object",
+				"properties": {
+					"success": {
+						"type": "boolean"
+					},
+					"message": {
+						"type": "string"
+					},
+					"data": {
+						"type": "object",
+						"properties": {
+							"willStatus": {
+								"type": "object",
+								"properties": {
+									"completionPercentage": {
+										"type": "number",
+										"description": "Will completion percentage (0-100)",
+										"minimum": 0,
+										"maximum": 100
+									},
+									"isCompleted": {
+										"type": "boolean",
+										"description": "Whether the will is completed"
+									},
+									"stats": {
+										"type": "object",
+										"description": "Stats shown when will is completed",
+										"properties": {
+											"totalNumberOfBeneficiaries": {
+												"type": "integer",
+												"description": "Total number of beneficiaries in the will"
+											},
+											"totalAssets": {
+												"type": "integer",
+												"description": "Total number of assets"
+											},
+											"totalAssetsValue": {
+												"type": "number",
+												"description": "Total value of all assets"
+											},
+											"outstandingDebts": {
+												"type": "number",
+												"description": "Total outstanding debts"
+											}
+										}
+									}
+								}
+							},
+							"educationalResources": {
+								"type": "array",
+								"items": {
+									"$ref": "#/components/schemas/EducationalResource"
+								},
+								"description": "Featured educational resources for home screen"
+							}
+						}
+					}
+				}
 			}
 		}
 	},
@@ -1244,6 +1433,292 @@
 							"application/json": {
 								"schema": {
 									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized access",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/educational-resources/featured": {
+			"get": {
+				"tags": ["Educational Resources"],
+				"summary": "Get featured educational resources",
+				"description": "Returns 3-5 featured educational resources",
+				"security": [{ "BearerAuth": [] }],
+				"parameters": [
+					{
+						"in": "header",
+						"name": "Authorization",
+						"schema": { "type": "string" },
+						"required": true,
+						"description": "JWT token (Bearer <token>)",
+						"example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Featured resources retrieved successfully",
+						"content": {
+							"application/json": {
+								"type": "object",
+								"properties": {
+									"success": {
+										"type": "boolean"
+									},
+									"message": {
+										"type": "string"
+									},
+									"data": {
+										"type": "object",
+										"properties": {
+											"resources": {
+												"type": "array",
+												"items": {
+													"$ref": "#/components/schemas/EducationalResource"
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized access",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/educational-resources": {
+			"get": {
+				"tags": ["Educational Resources"],
+				"summary": "Search and list educational resources",
+				"description": "Search through educational resources with pagination",
+				"security": [{ "BearerAuth": [] }],
+				"parameters": [
+					{
+						"in": "header",
+						"name": "Authorization",
+						"schema": { "type": "string" },
+						"required": true,
+						"description": "JWT token (Bearer <token>)",
+						"example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+					},
+					{
+						"in": "query",
+						"name": "search",
+						"schema": {
+							"type": "string"
+						},
+						"description": "Search term for filtering resources"
+					},
+					{
+						"in": "query",
+						"name": "page",
+						"schema": {
+							"type": "integer",
+							"default": 1
+						},
+						"description": "Page number for pagination"
+					},
+					{
+						"in": "query",
+						"name": "limit",
+						"schema": {
+							"type": "integer",
+							"default": 10
+						},
+						"description": "Number of items per page"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Resources retrieved successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/PaginatedResourcesResponse"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized access",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/workshops/upcoming": {
+			"get": {
+				"tags": ["Workshops"],
+				"summary": "Get upcoming workshops",
+				"description": "Returns 3-5 upcoming workshops",
+				"security": [{ "BearerAuth": [] }],
+				"parameters": [
+					{
+						"in": "header",
+						"name": "Authorization",
+						"schema": { "type": "string" },
+						"required": true,
+						"description": "JWT token (Bearer <token>)",
+						"example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Upcoming workshops retrieved successfully",
+						"content": {
+							"application/json": {
+								"type": "object",
+								"properties": {
+									"success": {
+										"type": "boolean"
+									},
+									"message": {
+										"type": "string"
+									},
+									"data": {
+										"type": "object",
+										"properties": {
+											"workshops": {
+												"type": "array",
+												"items": {
+													"$ref": "#/components/schemas/Workshop"
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized access",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/workshops": {
+			"get": {
+				"tags": ["Workshops"],
+				"summary": "Search and list workshops",
+				"description": "Search through workshops with pagination",
+				"security": [{ "BearerAuth": [] }],
+				"parameters": [
+					{
+						"in": "header",
+						"name": "Authorization",
+						"schema": { "type": "string" },
+						"required": true,
+						"description": "JWT token (Bearer <token>)",
+						"example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+					},
+					{
+						"in": "query",
+						"name": "search",
+						"schema": {
+							"type": "string"
+						},
+						"description": "Search term for filtering workshops"
+					},
+					{
+						"in": "query",
+						"name": "page",
+						"schema": {
+							"type": "integer",
+							"default": 1
+						},
+						"description": "Page number for pagination"
+					},
+					{
+						"in": "query",
+						"name": "limit",
+						"schema": {
+							"type": "integer",
+							"default": 10
+						},
+						"description": "Number of items per page"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Workshops retrieved successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/PaginatedWorkshopsResponse"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized access",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/dashboard": {
+			"get": {
+				"tags": ["Dashboard"],
+				"summary": "Get home dashboard data",
+				"description": "Returns will completion status, stats and educational resources",
+				"security": [{ "BearerAuth": [] }],
+				"parameters": [
+					{
+						"in": "header",
+						"name": "Authorization",
+						"schema": { "type": "string" },
+						"required": true,
+						"description": "JWT token (Bearer <token>)",
+						"example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Dashboard data retrieved successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/DashboardResponse"
 								}
 							}
 						}

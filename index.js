@@ -300,12 +300,160 @@ app.patch('/api/v1/user/notification-settings', verifyToken, (req, res) => {
 
 // Protected feedback submission endpoint
 app.post('/api/v1/user/feedback', verifyToken, (req, res) => {
-    const { subject, message, fileAttachments } = req.body;
-    res.status(201).json({
-        success: true,
-        message: 'Feedback submitted successfully',
-        data: {}
-    });
+	const { subject, message, fileAttachments } = req.body;
+	res.status(201).json({
+		success: true,
+		message: 'Feedback submitted successfully',
+		data: {},
+	});
+});
+
+// Mock data for educational resources
+const educationalResources = Array(20)
+	.fill(null)
+	.map((_, index) => ({
+		id: index + 1,
+		title: `Educational Resource ${index + 1}`,
+		description: `This is a detailed description for educational resource ${
+			index + 1
+		}`,
+		imageUrl: `https://example.com/images/resource-${index + 1}.jpg`,
+		isFeatured: index < 5, // First 5 items are featured
+		createdAt: new Date().toISOString(),
+	}));
+
+// Get featured educational resources
+app.get('/api/v1/educational-resources/featured', verifyToken, (req, res) => {
+	const featuredResources = educationalResources
+		.filter((resource) => resource.isFeatured)
+		.slice(0, 5);
+
+	res.status(200).json({
+		success: true,
+		message: 'Featured resources retrieved successfully',
+		data: {
+			resources: featuredResources,
+		},
+	});
+});
+
+// Search and list educational resources with pagination
+app.get('/api/v1/educational-resources', verifyToken, (req, res) => {
+	const search = req.query.search?.toLowerCase() || '';
+	const page = parseInt(req.query.page) || 1;
+	const limit = parseInt(req.query.limit) || 10;
+
+	// Filter resources based on search term
+	const filteredResources = educationalResources.filter(
+		(resource) =>
+			resource.title.toLowerCase().includes(search) ||
+			resource.description.toLowerCase().includes(search)
+	);
+
+	// Calculate pagination
+	const startIndex = (page - 1) * limit;
+	const endIndex = startIndex + limit;
+	const paginatedResources = filteredResources.slice(startIndex, endIndex);
+
+	res.status(200).json({
+		success: true,
+		message: 'Resources retrieved successfully',
+		data: {
+			resources: paginatedResources,
+			total: filteredResources.length,
+		},
+	});
+});
+
+// Mock data for workshops
+const workshops = Array(20)
+	.fill(null)
+	.map((_, index) => ({
+		id: index + 1,
+		title: `Workshop ${index + 1}`,
+		description: `This is a detailed description for workshop ${index + 1}`,
+		mediaType: index % 3 === 0 ? 'video' : 'image', // Every 3rd item is a video
+		mediaUrl:
+			index % 3 === 0
+				? `https://example.com/videos/workshop-${index + 1}.mp4`
+				: `https://example.com/images/workshop-${index + 1}.jpg`,
+		startDate: new Date(
+			Date.now() + index * 24 * 60 * 60 * 1000
+		).toISOString(), // Each workshop starts a day after the previous
+		endDate: new Date(
+			Date.now() + (index + 1) * 24 * 60 * 60 * 1000
+		).toISOString(),
+		isUpcoming: index < 5, // First 5 items are upcoming
+		createdAt: new Date().toISOString(),
+	}));
+
+// Get upcoming workshops
+app.get('/api/v1/workshops/upcoming', verifyToken, (req, res) => {
+	const upcomingWorkshops = workshops
+		.filter((workshop) => workshop.isUpcoming)
+		.slice(0, 5);
+
+	res.status(200).json({
+		success: true,
+		message: 'Upcoming workshops retrieved successfully',
+		data: {
+			workshops: upcomingWorkshops,
+		},
+	});
+});
+
+// Search and list workshops with pagination
+app.get('/api/v1/workshops', verifyToken, (req, res) => {
+	const search = req.query.search?.toLowerCase() || '';
+	const page = parseInt(req.query.page) || 1;
+	const limit = parseInt(req.query.limit) || 10;
+
+	// Filter workshops based on search term
+	const filteredWorkshops = workshops.filter(
+		(workshop) =>
+			workshop.title.toLowerCase().includes(search) ||
+			workshop.description.toLowerCase().includes(search)
+	);
+
+	// Calculate pagination
+	const startIndex = (page - 1) * limit;
+	const endIndex = startIndex + limit;
+	const paginatedWorkshops = filteredWorkshops.slice(startIndex, endIndex);
+
+	res.status(200).json({
+		success: true,
+		message: 'Workshops retrieved successfully',
+		data: {
+			workshops: paginatedWorkshops,
+			total: filteredWorkshops.length,
+		},
+	});
+});
+
+// Protected dashboard API endpoint
+app.get('/api/v1/dashboard', verifyToken, (req, res) => {
+	// Get random featured resources (3 items)
+	const featuredResources = educationalResources
+		.filter((resource) => resource.isFeatured)
+		.slice(0, 3);
+
+	res.status(200).json({
+		success: true,
+		message: 'Dashboard data retrieved successfully',
+		data: {
+			willStatus: {
+				completionPercentage: 75, // Mock percentage
+				isCompleted: true, // Mock completion status
+				stats: {
+					totalNumberOfBeneficiaries: 5,
+					totalAssets: 12,
+					totalAssetsValue: 1500000,
+					outstandingDebts: 50000,
+				},
+			},
+			educationalResources: featuredResources,
+		},
+	});
 });
 
 app.listen(port, () => {
