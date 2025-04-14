@@ -134,6 +134,207 @@
 				},
 				"required": ["userName", "password"]
 			},
+			"SigninResponse": {
+				"type": "object",
+				"properties": {
+					"success": {
+						"type": "boolean"
+					},
+					"message": {
+						"type": "string"
+					},
+					"data": {
+						"type": "object",
+						"properties": {
+							"user": {
+								"type": "object",
+								"properties": {
+									"id": {
+										"type": "integer"
+									},
+									"email": {
+										"type": "string",
+										"format": "email"
+									},
+									"firstName": {
+										"type": "string"
+									},
+									"lastName": {
+										"type": "string"
+									},
+									"phoneNumberCode": {
+										"type": "string"
+									},
+									"phoneNumber": {
+										"type": "string"
+									},
+									"isEmailVerified": {
+										"type": "boolean"
+									},
+									"isPhoneVerified": {
+										"type": "boolean"
+									},
+									"createdAt": {
+										"type": "string",
+										"format": "date-time"
+									}
+								}
+							},
+							"token": {
+								"type": "string"
+							}
+						}
+					}
+				}
+			},
+			"SocialLoginRequest": {
+				"type": "object",
+				"properties": {
+					"provider": {
+						"type": "string",
+						"enum": ["google", "apple"],
+						"description": "Social provider name"
+					},
+					"token": {
+						"type": "string",
+						"description": "OAuth token from the provider"
+					}
+				},
+				"required": ["provider", "token"]
+			},
+			"UserProfile": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "integer",
+						"description": "User ID"
+					},
+					"email": {
+						"type": "string",
+						"format": "email",
+						"description": "User's email address"
+					},
+					"firstName": {
+						"type": "string",
+						"description": "User's first name"
+					},
+					"lastName": {
+						"type": "string",
+						"description": "User's last name"
+					},
+					"phoneNumberCode": {
+						"type": "string",
+						"description": "Country code for phone number"
+					},
+					"phoneNumber": {
+						"type": "string",
+						"description": "User's phone number"
+					},
+					"isEmailVerified": {
+						"type": "boolean",
+						"description": "Whether the user's email is verified"
+					},
+					"isPhoneVerified": {
+						"type": "boolean",
+						"description": "Whether the user's phone number is verified"
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time",
+						"description": "User creation timestamp"
+					},
+					"socialAccounts": {
+						"type": "object",
+						"properties": {
+							"google": {
+								"type": "boolean",
+								"description": "Whether the user has linked a Google account"
+							},
+							"apple": {
+								"type": "boolean",
+								"description": "Whether the user has linked an Apple account"
+							}
+						}
+					}
+				}
+			},
+			"UpdateProfileRequest": {
+				"type": "object",
+				"properties": {
+					"firstName": {
+						"type": "string",
+						"description": "Updated first name"
+					},
+					"lastName": {
+						"type": "string",
+						"description": "Updated last name"
+					},
+					"nationality": {
+						"type": "string",
+						"description": "User's nationality"
+					},
+					"gender": {
+						"type": "string",
+						"enum": [
+							"male",
+							"female",
+							"other",
+							"prefer_not_to_say"
+						],
+						"description": "User's gender"
+					},
+					"dateOfBirth": {
+						"type": "string",
+						"format": "date",
+						"description": "User's date of birth (YYYY-MM-DD)"
+					}
+				}
+			},
+			"NotificationSettings": {
+				"type": "object",
+				"properties": {
+					"feedback": {
+						"type": "boolean",
+						"description": "Receive feedback notifications"
+					},
+					"consultations": {
+						"type": "boolean",
+						"description": "Receive consultation notifications"
+					},
+					"legacyAndFamilyRecords": {
+						"type": "boolean",
+						"description": "Receive legacy and family records notifications"
+					},
+					"paymentAndSubscription": {
+						"type": "boolean",
+						"description": "Receive payment and subscription notifications"
+					},
+					"securityAndAccount": {
+						"type": "boolean",
+						"description": "Receive security and account notifications"
+					},
+					"generalUpdates": {
+						"type": "boolean",
+						"description": "Receive general update notifications"
+					}
+				}
+			},
+			"ChangePasswordRequest": {
+				"type": "object",
+				"properties": {
+					"currentPassword": {
+						"type": "string",
+						"format": "password",
+						"description": "User's current password"
+					},
+					"newPassword": {
+						"type": "string",
+						"format": "password",
+						"description": "User's new password"
+					}
+				},
+				"required": ["currentPassword", "newPassword"]
+			},
 			"ApiResponse": {
 				"type": "object",
 				"properties": {
@@ -148,6 +349,111 @@
 					"data": {
 						"type": "object",
 						"description": "Response data"
+					}
+				}
+			},
+			"Error": {
+				"type": "object",
+				"properties": {
+					"success": {
+						"type": "boolean",
+						"default": false,
+						"description": "Always false for error responses"
+					},
+					"message": {
+						"type": "string",
+						"description": "Error message"
+					},
+					"data": {
+						"type": "object",
+						"description": "Error details",
+						"properties": {}
+					}
+				}
+			},
+			"ProfileResponse": {
+				"type": "object",
+				"properties": {
+					"success": {
+						"type": "boolean"
+					},
+					"message": {
+						"type": "string"
+					},
+					"data": {
+						"type": "object",
+						"properties": {
+							"user": {
+								"$ref": "#/components/schemas/UserProfile"
+							}
+						}
+					}
+				}
+			},
+			"ChangeLanguageRequest": {
+				"type": "object",
+				"properties": {
+					"language": {
+						"type": "string",
+						"enum": ["en", "ar"],
+						"description": "Language code"
+					}
+				},
+				"required": ["language"]
+			},
+			"LinkSocialAccountRequest": {
+				"type": "object",
+				"properties": {
+					"provider": {
+						"type": "string",
+						"enum": ["google", "apple"],
+						"description": "Social provider name"
+					},
+					"token": {
+						"type": "string",
+						"description": "OAuth token from the provider"
+					}
+				},
+				"required": ["provider", "token"]
+			},
+			"SubmitFeedbackRequest": {
+				"type": "object",
+				"properties": {
+					"subject": {
+						"type": "string",
+						"description": "Feedback subject"
+					},
+					"message": {
+						"type": "string",
+						"description": "Feedback message"
+					},
+					"fileAttachments": {
+						"type": "array",
+						"items": {
+							"type": "string",
+							"format": "binary"
+						},
+						"description": "Optional file attachments"
+					}
+				},
+				"required": ["subject", "message"]
+			},
+			"MessageResponse": {
+				"type": "object",
+				"properties": {
+					"success": {
+						"type": "boolean",
+						"description": "Indicates if the request was successful"
+					},
+					"message": {
+						"type": "string",
+						"description": "Response message"
+					},
+					"data": {
+						"type": "object",
+						"description": "Response data",
+						"properties": {},
+						"example": {}
 					}
 				}
 			}
@@ -181,7 +487,14 @@
 						}
 					},
 					"400": {
-						"description": "Bad request"
+						"description": "Bad request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
 					}
 				}
 			}
@@ -207,142 +520,20 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"type": "object",
-									"properties": {
-										"success": {
-											"type": "boolean"
-										},
-										"message": {
-											"type": "string"
-										},
-										"data": {
-											"type": "object",
-											"properties": {
-												"user": {
-													"type": "object"
-												},
-												"token": {
-													"type": "string"
-												}
-											}
-										}
-									}
+									"$ref": "#/components/schemas/SigninResponse"
 								}
 							}
 						}
 					},
 					"401": {
-						"description": "Unauthorized"
-					}
-				}
-			}
-		},
-		"/api/v1/user/profile": {
-			"get": {
-				"tags": ["User"],
-				"summary": "Get user profile",
-				"description": "Retrieve the authenticated user's profile information",
-				"security": [
-					{
-						"BearerAuth": []
-					}
-				],
-				"responses": {
-					"200": {
-						"description": "Profile retrieved successfully"
-					},
-					"401": {
-						"description": "Unauthorized"
-					}
-				}
-			},
-			"put": {
-				"tags": ["User"],
-				"summary": "Update user profile",
-				"description": "Update the authenticated user's profile information",
-				"security": [
-					{
-						"BearerAuth": []
-					}
-				],
-				"requestBody": {
-					"required": true,
-					"content": {
-						"application/json": {
-							"schema": {
-								"type": "object",
-								"properties": {
-									"firstName": {
-										"type": "string"
-									},
-									"lastName": {
-										"type": "string"
-									},
-									"nationality": {
-										"type": "string"
-									},
-									"gender": {
-										"type": "string",
-										"enum": ["male", "female", "other", "prefer_not_to_say"]
-									},
-									"dateOfBirth": {
-										"type": "string",
-										"format": "date"
-									}
+						"description": "Unauthorized",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
 								}
 							}
 						}
-					}
-				},
-				"responses": {
-					"200": {
-						"description": "Profile updated successfully"
-					},
-					"400": {
-						"description": "Bad request"
-					},
-					"401": {
-						"description": "Unauthorized"
-					}
-				}
-			}
-		},
-		"/api/v1/user/verify-email": {
-			"post": {
-				"tags": ["User"],
-				"summary": "Verify email address",
-				"description": "Verify a user's email address with token",
-				"security": [
-					{
-						"BearerAuth": []
-					}
-				],
-				"requestBody": {
-					"required": true,
-					"content": {
-						"application/json": {
-							"schema": {
-								"type": "object",
-								"properties": {
-									"token": {
-										"type": "string",
-										"description": "Email verification token"
-									}
-								},
-								"required": ["token"]
-							}
-						}
-					}
-				},
-				"responses": {
-					"200": {
-						"description": "Email verified successfully"
-					},
-					"401": {
-						"description": "Unauthorized"
-					},
-					"400": {
-						"description": "Invalid token"
 					}
 				}
 			}
@@ -357,27 +548,715 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"type": "object",
-								"properties": {
-									"provider": {
-										"type": "string",
-										"enum": ["google", "apple"]
-									},
-									"token": {
-										"type": "string"
-									}
-								},
-								"required": ["provider", "token"]
+								"$ref": "#/components/schemas/SocialLoginRequest"
 							}
 						}
 					}
 				},
 				"responses": {
 					"200": {
-						"description": "Login successful"
+						"description": "Login successful",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/SigninResponse"
+								}
+							}
+						}
 					},
 					"400": {
-						"description": "Bad request"
+						"description": "Bad request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/user/profile": {
+			"get": {
+				"tags": ["User"],
+				"summary": "Get user profile",
+				"description": "Retrieves the profile information of the logged-in user",
+				"operationId": "getProfile",
+				"security": [{ "BearerAuth": [] }],
+				"parameters": [
+					{
+						"in": "header",
+						"name": "Authorization",
+						"schema": { "type": "string" },
+						"required": true,
+						"description": "JWT token (Bearer <token>)",
+						"example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Profile fetched successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ProfileResponse"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized access",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					}
+				}
+			},
+			"put": {
+				"tags": ["User"],
+				"summary": "Update user profile",
+				"description": "Updates the profile information of the logged-in user",
+				"operationId": "updateProfile",
+				"security": [{ "BearerAuth": [] }],
+				"parameters": [
+					{
+						"in": "header",
+						"name": "Authorization",
+						"schema": { "type": "string" },
+						"required": true,
+						"description": "JWT token (Bearer <token>)",
+						"example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/UpdateProfileRequest"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Profile updated successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ProfileResponse"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Invalid input",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized access",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/user/password": {
+			"put": {
+				"tags": ["User"],
+				"summary": "Change user password",
+				"description": "Change the password of logged-in user",
+				"operationId": "changePassword",
+				"security": [{ "BearerAuth": [] }],
+				"parameters": [
+					{
+						"in": "header",
+						"name": "Authorization",
+						"schema": { "type": "string" },
+						"required": true,
+						"description": "JWT token (Bearer <token>)",
+						"example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/ChangePasswordRequest"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Password changed successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/MessageResponse"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Invalid password",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized access",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/user/language": {
+			"put": {
+				"tags": ["User"],
+				"summary": "Change user language preference",
+				"description": "Change the language preference for the logged-in user",
+				"operationId": "changeLanguage",
+				"security": [{ "BearerAuth": [] }],
+				"parameters": [
+					{
+						"in": "header",
+						"name": "Authorization",
+						"schema": { "type": "string" },
+						"required": true,
+						"description": "JWT token (Bearer <token>)",
+						"example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/ChangeLanguageRequest"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Language preference updated successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/MessageResponse"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Invalid language code",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized access",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/user/social-link": {
+			"post": {
+				"tags": ["User"],
+				"summary": "Link social account",
+				"description": "Link a social account to the user's profile",
+				"operationId": "linkSocialAccount",
+				"security": [{ "BearerAuth": [] }],
+				"parameters": [
+					{
+						"in": "header",
+						"name": "Authorization",
+						"schema": { "type": "string" },
+						"required": true,
+						"description": "JWT token (Bearer <token>)",
+						"example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/LinkSocialAccountRequest"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Social account linked successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/MessageResponse"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Invalid input or token",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized access",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/user/notification-settings": {
+			"get": {
+				"tags": ["User"],
+				"summary": "Get notification settings",
+				"description": "Retrieve user's notification preferences",
+				"operationId": "getNotificationSettings",
+				"security": [{ "BearerAuth": [] }],
+				"parameters": [
+					{
+						"in": "header",
+						"name": "Authorization",
+						"schema": { "type": "string" },
+						"required": true,
+						"description": "JWT token (Bearer <token>)",
+						"example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Notification settings retrieved successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/NotificationSettings"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized access",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					}
+				}
+			},
+			"patch": {
+				"tags": ["User"],
+				"summary": "Update notification settings",
+				"description": "Update user's notification preferences",
+				"operationId": "updateNotificationSettings",
+				"security": [{ "BearerAuth": [] }],
+				"parameters": [
+					{
+						"in": "header",
+						"name": "Authorization",
+						"schema": { "type": "string" },
+						"required": true,
+						"description": "JWT token (Bearer <token>)",
+						"example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/NotificationSettings"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Notification settings updated successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/NotificationSettings"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Invalid input",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized access",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/user/feedback": {
+			"post": {
+				"tags": ["User"],
+				"summary": "Submit feedback",
+				"description": "Submit user feedback with optional file attachments",
+				"operationId": "submitFeedback",
+				"security": [{ "BearerAuth": [] }],
+				"parameters": [
+					{
+						"in": "header",
+						"name": "Authorization",
+						"schema": { "type": "string" },
+						"required": true,
+						"description": "JWT token (Bearer <token>)",
+						"example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"multipart/form-data": {
+							"schema": {
+								"$ref": "#/components/schemas/SubmitFeedbackRequest"
+							}
+						}
+					}
+				},
+				"responses": {
+					"201": {
+						"description": "Feedback submitted successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/MessageResponse"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Invalid input",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized access",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/user/forgot-password": {
+			"post": {
+				"tags": ["Auth"],
+				"summary": "Request password reset",
+				"description": "Send password reset link to user's email",
+				"operationId": "forgotPassword",
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"email": { "type": "string" }
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Password reset link sent",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/MessageResponse"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "User not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/user/verify-reset-token": {
+			"post": {
+				"tags": ["Auth"],
+				"summary": "Verify reset password token",
+				"description": "Validates the reset password token from email link",
+				"operationId": "verifyResetToken",
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"token": { "type": "string" },
+									"email": { "type": "string" }
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Token verified",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/MessageResponse"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Invalid or expired token",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/user/reset-password": {
+			"post": {
+				"tags": ["Auth"],
+				"summary": "Reset password",
+				"description": "Set new password using valid reset token",
+				"operationId": "resetPassword",
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"token": { "type": "string" },
+									"email": { "type": "string" },
+									"newPassword": { "type": "string" }
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Password reset successful",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/MessageResponse"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Invalid token or password",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/user/verify-email": {
+			"post": {
+				"tags": ["Auth"],
+				"summary": "Verify email address",
+				"description": "Verify user's email address using verification token",
+				"operationId": "verifyEmail",
+				"security": [{ "BearerAuth": [] }],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"token": { "type": "string" }
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Email verified successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/MessageResponse"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Invalid or expired token",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized access",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/user/verify-phone": {
+			"post": {
+				"tags": ["Auth"],
+				"summary": "Verify phone number",
+				"description": "Verify user's phone number using OTP",
+				"operationId": "verifyPhone",
+				"security": [{ "BearerAuth": [] }],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"otp": { "type": "string" }
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Phone verified successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/MessageResponse"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Invalid OTP",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized access",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
 					}
 				}
 			}
