@@ -601,6 +601,14 @@
 							"willStatus": {
 								"type": "object",
 								"properties": {
+									"hasWill": {
+										"type": "boolean",
+										"description": "Whether the user has created a will"
+									},
+									"willTitle": {
+										"type": "string",
+										"description": "Title of the user's will"
+									},
 									"completionPercentage": {
 										"type": "number",
 										"description": "Will completion percentage (0-100)",
@@ -632,6 +640,30 @@
 												"description": "Total outstanding debts"
 											}
 										}
+									},
+									"details": {
+										"type": "object",
+										"description": "Detailed breakdown of assets and liabilities",
+										"properties": {
+											"assets": {
+												"type": "array",
+												"items": {
+													"$ref": "#/components/schemas/Asset"
+												},
+												"description": "Breakdown of assets by category"
+											},
+											"liabilities": {
+												"type": "array",
+												"items": {
+													"$ref": "#/components/schemas/Liability"
+												},
+												"description": "List of liabilities"
+											},
+											"totalLiabilities": {
+												"type": "number",
+												"description": "Sum of all liabilities"
+											}
+										}
 									}
 								}
 							},
@@ -641,6 +673,399 @@
 									"$ref": "#/components/schemas/EducationalResource"
 								},
 								"description": "Featured educational resources for home screen"
+							}
+						}
+					}
+				}
+			},
+			"AssetItem": {
+				"type": "object",
+				"properties": {
+					"itemName": {
+						"type": "string",
+						"description": "Name of the asset item"
+					},
+					"itemValue": {
+						"type": "number",
+						"description": "Value of the asset item"
+					}
+				}
+			},
+			"Asset": {
+				"type": "object",
+				"properties": {
+					"assetName": {
+						"type": "string",
+						"description": "Category/Name of the asset"
+					},
+					"items": {
+						"type": "array",
+						"items": {
+							"$ref": "#/components/schemas/AssetItem"
+						},
+						"description": "List of items in this asset category"
+					}
+				}
+			},
+			"Liability": {
+				"type": "object",
+				"properties": {
+					"name": {
+						"type": "string",
+						"description": "Name of the liability"
+					},
+					"amount": {
+						"type": "number",
+						"description": "Amount of the liability"
+					}
+				}
+			},
+			"Notification": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "integer",
+						"description": "Notification ID"
+					},
+					"imageUrl": {
+						"type": "string",
+						"format": "uri",
+						"description": "URL of the notification image"
+					},
+					"description": {
+						"type": "string",
+						"description": "Notification content"
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time",
+						"description": "When the notification was created"
+					},
+					"type": {
+						"type": "string",
+						"enum": [
+							"consultation",
+							"will",
+							"educational-resource",
+							"workshop",
+							"profile"
+						],
+						"description": "Type of notification for redirection"
+					},
+					"referenceId": {
+						"type": "integer",
+						"description": "ID of the referenced object (consultation, will, resource, workshop, or user)"
+					}
+				}
+			},
+			"NotificationsResponse": {
+				"type": "object",
+				"properties": {
+					"success": {
+						"type": "boolean"
+					},
+					"message": {
+						"type": "string"
+					},
+					"data": {
+						"type": "object",
+						"properties": {
+							"notifications": {
+								"type": "array",
+								"items": {
+									"$ref": "#/components/schemas/Notification"
+								}
+							},
+							"total": {
+								"type": "integer",
+								"description": "Total number of notifications"
+							}
+						}
+					}
+				}
+			},
+			"Consultation": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "integer",
+						"description": "Consultation ID"
+					},
+					"expertName": {
+						"type": "string",
+						"description": "Name of the expert/consultant"
+					},
+					"expertImage": {
+						"type": "string",
+						"format": "uri",
+						"description": "URL of expert's profile image"
+					},
+					"specialization": {
+						"type": "string",
+						"description": "Expert's area of specialization"
+					},
+					"bookingDate": {
+						"type": "string",
+						"format": "date",
+						"description": "Date of consultation"
+					},
+					"bookingTime": {
+						"type": "string",
+						"description": "Time slot of consultation"
+					},
+					"status": {
+						"type": "string",
+						"enum": ["confirmed", "pending", "completed"],
+						"description": "Current status of consultation"
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time",
+						"description": "When the consultation was created"
+					}
+				}
+			},
+			"ConsultationsResponse": {
+				"type": "object",
+				"properties": {
+					"success": {
+						"type": "boolean"
+					},
+					"message": {
+						"type": "string"
+					},
+					"data": {
+						"type": "object",
+						"properties": {
+							"consultations": {
+								"type": "array",
+								"items": {
+									"$ref": "#/components/schemas/Consultation"
+								}
+							},
+							"total": {
+								"type": "integer",
+								"description": "Total number of consultations"
+							}
+						}
+					}
+				}
+			},
+			"ConsultationDetail": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "integer",
+						"description": "Consultation ID"
+					},
+					"expertName": {
+						"type": "string",
+						"description": "Name of the expert/consultant"
+					},
+					"expertImage": {
+						"type": "string",
+						"format": "uri",
+						"description": "URL of expert's profile image"
+					},
+					"experience": {
+						"type": "integer",
+						"description": "Years of experience"
+					},
+					"specialization": {
+						"type": "string",
+						"description": "Expert's area of specialization"
+					},
+					"bookingDate": {
+						"type": "string",
+						"format": "date",
+						"description": "Date of consultation"
+					},
+					"bookingTime": {
+						"type": "string",
+						"description": "Time slot of consultation"
+					},
+					"duration": {
+						"type": "integer",
+						"description": "Duration in minutes"
+					},
+					"status": {
+						"type": "string",
+						"enum": ["confirmed", "pending", "completed"],
+						"description": "Current status of consultation"
+					},
+					"meetingUrl": {
+						"type": "string",
+						"format": "uri",
+						"description": "URL for virtual consultation meeting"
+					},
+					"createdAt": {
+						"type": "string",
+						"format": "date-time",
+						"description": "When the consultation was created"
+					}
+				}
+			},
+			"ConsultationDetailResponse": {
+				"type": "object",
+				"properties": {
+					"success": {
+						"type": "boolean"
+					},
+					"message": {
+						"type": "string"
+					},
+					"data": {
+						"type": "object",
+						"properties": {
+							"consultation": {
+								"$ref": "#/components/schemas/ConsultationDetail"
+							}
+						}
+					}
+				}
+			},
+			"RescheduleConsultationRequest": {
+				"type": "object",
+				"properties": {
+					"bookingDate": {
+						"type": "string",
+						"format": "date",
+						"description": "New date for consultation"
+					},
+					"bookingTime": {
+						"type": "string",
+						"description": "New time slot for consultation"
+					}
+				},
+				"required": ["bookingDate", "bookingTime"]
+			},
+			"Expert": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "integer",
+						"description": "Expert ID"
+					},
+					"name": {
+						"type": "string",
+						"description": "Expert's full name"
+					},
+					"imageUrl": {
+						"type": "string",
+						"format": "uri",
+						"description": "URL of expert's profile image"
+					},
+					"specialization": {
+						"type": "string",
+						"description": "Expert's specialization area"
+					},
+					"rate": {
+						"type": "number",
+						"description": "Consultation rate per hour"
+					},
+					"rateCurrency": {
+						"type": "string",
+						"description": "Currency for the rate"
+					},
+					"experience": {
+						"type": "integer",
+						"description": "Years of experience"
+					},
+					"type": {
+						"type": "string",
+						"enum": ["legal", "shariah"],
+						"description": "Type of expert"
+					}
+				}
+			},
+			"ExpertsResponse": {
+				"type": "object",
+				"properties": {
+					"success": {
+						"type": "boolean"
+					},
+					"message": {
+						"type": "string"
+					},
+					"data": {
+						"type": "object",
+						"properties": {
+							"experts": {
+								"type": "array",
+								"items": {
+									"$ref": "#/components/schemas/Expert"
+								}
+							},
+							"total": {
+								"type": "integer",
+								"description": "Total number of experts available"
+							}
+						}
+					}
+				}
+			},
+			"BookConsultationRequest": {
+				"type": "object",
+				"properties": {
+					"expertId": {
+						"type": "integer",
+						"description": "ID of the expert to book consultation with"
+					},
+					"bookingDate": {
+						"type": "string",
+						"format": "date",
+						"description": "Date of consultation"
+					},
+					"timeSlot": {
+						"type": "string",
+						"description": "Time slot for consultation"
+					},
+					"paymentToken": {
+						"type": "string",
+						"description": "Payment token from payment gateway"
+					}
+				},
+				"required": [
+					"expertId",
+					"bookingDate",
+					"timeSlot",
+					"paymentToken"
+				]
+			},
+			"TimeSlot": {
+				"type": "object",
+				"properties": {
+					"startTime": {
+						"type": "string",
+						"description": "Start time of the slot (HH:mm)"
+					},
+					"endTime": {
+						"type": "string",
+						"description": "End time of the slot (HH:mm)"
+					},
+					"isAvailable": {
+						"type": "boolean",
+						"description": "Whether the time slot is available"
+					}
+				}
+			},
+			"ExpertTimeSlotsResponse": {
+				"type": "object",
+				"properties": {
+					"success": {
+						"type": "boolean"
+					},
+					"message": {
+						"type": "string"
+					},
+					"data": {
+						"type": "object",
+						"properties": {
+							"timeSlots": {
+								"type": "array",
+								"items": {
+									"$ref": "#/components/schemas/TimeSlot"
+								}
 							}
 						}
 					}
@@ -1196,14 +1621,14 @@
 								}
 							}
 						}
-					},
-					"401": {
-						"description": "Unauthorized access",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								}
+					}
+				},
+				"401": {
+					"description": "Unauthorized access",
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/Error"
 							}
 						}
 					}
@@ -1725,6 +2150,540 @@
 					},
 					"401": {
 						"description": "Unauthorized access",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/notifications": {
+			"get": {
+				"tags": ["Notifications"],
+				"summary": "Get notifications list",
+				"description": "Retrieve paginated list of notifications",
+				"security": [{ "BearerAuth": [] }],
+				"parameters": [
+					{
+						"in": "header",
+						"name": "Authorization",
+						"schema": { "type": "string" },
+						"required": true,
+						"description": "JWT token (Bearer <token>)",
+						"example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+					},
+					{
+						"in": "query",
+						"name": "page",
+						"schema": {
+							"type": "integer",
+							"default": 1
+						},
+						"description": "Page number for pagination"
+					},
+					{
+						"in": "query",
+						"name": "limit",
+						"schema": {
+							"type": "integer",
+							"default": 10
+						},
+						"description": "Number of items per page"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Notifications retrieved successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/NotificationsResponse"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized access",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/consultations": {
+			"get": {
+				"tags": ["Consultations"],
+				"summary": "Get consultations list",
+				"description": "Retrieve paginated list of consultations",
+				"security": [{ "BearerAuth": [] }],
+				"parameters": [
+					{
+						"in": "header",
+						"name": "Authorization",
+						"schema": { "type": "string" },
+						"required": true,
+						"description": "JWT token (Bearer <token>)",
+						"example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+					},
+					{
+						"in": "query",
+						"name": "type",
+						"schema": {
+							"type": "string",
+							"enum": ["upcoming", "requests", "past"],
+							"default": "upcoming"
+						},
+						"description": "Type of consultations to retrieve"
+					},
+					{
+						"in": "query",
+						"name": "page",
+						"schema": {
+							"type": "integer",
+							"default": 1
+						},
+						"description": "Page number for pagination"
+					},
+					{
+						"in": "query",
+						"name": "limit",
+						"schema": {
+							"type": "integer",
+							"default": 10
+						},
+						"description": "Number of items per page"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Consultations retrieved successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ConsultationsResponse"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized access",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/consultations/{id}": {
+			"get": {
+				"tags": ["Consultations"],
+				"summary": "Get consultation details",
+				"description": "Retrieve detailed information about a specific consultation",
+				"security": [{ "BearerAuth": [] }],
+				"parameters": [
+					{
+						"in": "header",
+						"name": "Authorization",
+						"schema": { "type": "string" },
+						"required": true,
+						"description": "JWT token (Bearer <token>)",
+						"example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+					},
+					{
+						"in": "path",
+						"name": "id",
+						"schema": {
+							"type": "integer"
+						},
+						"required": true,
+						"description": "Consultation ID"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Consultation details retrieved successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ConsultationDetailResponse"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized access",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Consultation not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/consultations/{id}/cancel": {
+			"post": {
+				"tags": ["Consultations"],
+				"summary": "Cancel consultation",
+				"description": "Cancel a scheduled or pending consultation",
+				"security": [{ "BearerAuth": [] }],
+				"parameters": [
+					{
+						"in": "header",
+						"name": "Authorization",
+						"schema": { "type": "string" },
+						"required": true,
+						"description": "JWT token (Bearer <token>)",
+						"example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+					},
+					{
+						"in": "path",
+						"name": "id",
+						"schema": { "type": "integer" },
+						"required": true,
+						"description": "Consultation ID"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Consultation cancelled successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/MessageResponse"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Cannot cancel completed consultation",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized access",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Consultation not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/consultations/{id}/reschedule": {
+			"post": {
+				"tags": ["Consultations"],
+				"summary": "Reschedule consultation",
+				"description": "Reschedule a confirmed consultation to a new date and time",
+				"security": [{ "BearerAuth": [] }],
+				"parameters": [
+					{
+						"in": "header",
+						"name": "Authorization",
+						"schema": { "type": "string" },
+						"required": true,
+						"description": "JWT token (Bearer <token>)",
+						"example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+					},
+					{
+						"in": "path",
+						"name": "id",
+						"schema": { "type": "integer" },
+						"required": true,
+						"description": "Consultation ID"
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/RescheduleConsultationRequest"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Consultation rescheduled successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ConsultationDetailResponse"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Cannot reschedule completed or cancelled consultation",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized access",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Consultation not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/experts": {
+			"get": {
+				"tags": ["Experts"],
+				"summary": "Get experts list",
+				"description": "Retrieve paginated list of experts filtered by type",
+				"security": [{ "BearerAuth": [] }],
+				"parameters": [
+					{
+						"in": "header",
+						"name": "Authorization",
+						"schema": { "type": "string" },
+						"required": true,
+						"description": "JWT token (Bearer <token>)",
+						"example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+					},
+					{
+						"in": "query",
+						"name": "type",
+						"schema": {
+							"type": "string",
+							"enum": ["legal", "shariah"],
+							"default": "legal"
+						},
+						"description": "Type of experts to retrieve"
+					},
+					{
+						"in": "query",
+						"name": "page",
+						"schema": {
+							"type": "integer",
+							"default": 1
+						},
+						"description": "Page number for pagination"
+					},
+					{
+						"in": "query",
+						"name": "limit",
+						"schema": {
+							"type": "integer",
+							"default": 10
+						},
+						"description": "Number of items per page"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Experts retrieved successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ExpertsResponse"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized access",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/consultations/book": {
+			"post": {
+				"tags": ["Consultations"],
+				"summary": "Book a consultation",
+				"description": "Book a consultation with an expert",
+				"security": [{ "BearerAuth": [] }],
+				"parameters": [
+					{
+						"in": "header",
+						"name": "Authorization",
+						"schema": { "type": "string" },
+						"required": true,
+						"description": "JWT token (Bearer <token>)",
+						"example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+					}
+				],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/BookConsultationRequest"
+							}
+						}
+					}
+				},
+				"responses": {
+					"201": {
+						"description": "Consultation booked successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ConsultationDetailResponse"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Invalid input or time slot not available",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized access",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Expert not found",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/experts/{id}/time-slots": {
+			"get": {
+				"tags": ["Experts"],
+				"summary": "Get expert's available time slots",
+				"description": "Retrieve available consultation time slots for a specific expert on a given date",
+				"security": [{ "BearerAuth": [] }],
+				"parameters": [
+					{
+						"in": "header",
+						"name": "Authorization",
+						"schema": { "type": "string" },
+						"required": true,
+						"description": "JWT token (Bearer <token>)",
+						"example": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+					},
+					{
+						"in": "path",
+						"name": "id",
+						"schema": { "type": "integer" },
+						"required": true,
+						"description": "Expert ID"
+					},
+					{
+						"in": "query",
+						"name": "date",
+						"schema": {
+							"type": "string",
+							"format": "date"
+						},
+						"required": true,
+						"description": "Date to check availability (YYYY-MM-DD)"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Time slots retrieved successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ExpertTimeSlotsResponse"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Unauthorized access",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Expert not found",
 						"content": {
 							"application/json": {
 								"schema": {

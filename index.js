@@ -432,7 +432,7 @@ app.get('/api/v1/workshops', verifyToken, (req, res) => {
 
 // Protected dashboard API endpoint
 app.get('/api/v1/dashboard', verifyToken, (req, res) => {
-	// Get random featured resources (3 items)
+	// Get 3 featured resources
 	const featuredResources = educationalResources
 		.filter((resource) => resource.isFeatured)
 		.slice(0, 3);
@@ -442,18 +442,404 @@ app.get('/api/v1/dashboard', verifyToken, (req, res) => {
 		message: 'Dashboard data retrieved successfully',
 		data: {
 			willStatus: {
-				completionPercentage: 75, // Mock percentage
-				isCompleted: true, // Mock completion status
+				hasWill: true,
+				willTitle: 'My First Will',
+				completionPercentage: 75,
+				isCompleted: true,
 				stats: {
 					totalNumberOfBeneficiaries: 5,
 					totalAssets: 12,
 					totalAssetsValue: 1500000,
 					outstandingDebts: 50000,
 				},
+				details: {
+					assets: [
+						{
+							assetName: 'Real Estate',
+							items: [
+								{
+									itemName: 'Primary Residence',
+									itemValue: 1000000,
+								},
+								{
+									itemName: 'Vacation Home',
+									itemValue: 300000,
+								},
+							],
+						},
+						{
+							assetName: 'Vehicles',
+							items: [
+								{ itemName: 'Car', itemValue: 50000 },
+								{ itemName: 'Motorcycle', itemValue: 15000 },
+							],
+						},
+					],
+					liabilities: [
+						{ name: 'Mortgage', amount: 400000 },
+						{ name: 'Car Loan', amount: 30000 },
+					],
+					totalLiabilities: 430000,
+				},
 			},
 			educationalResources: featuredResources,
 		},
 	});
+});
+
+// Mock data for notifications
+const notifications = Array(20)
+	.fill(null)
+	.map((_, index) => {
+		// Generate different types of notifications for demo
+		const types = [
+			'consultation',
+			'will',
+			'educational-resource',
+			'workshop',
+			'profile',
+		];
+		const type = types[index % types.length];
+
+		// Generate different reference IDs and URLs based on type
+		let referenceId;
+		switch (type) {
+			case 'consultation':
+				referenceId = 1000 + index;
+				break;
+			case 'will':
+				referenceId = 2000 + index;
+				break;
+			case 'educational-resource':
+				referenceId = 3000 + index;
+				break;
+			case 'workshop':
+				referenceId = 4000 + index;
+				break;
+			case 'profile':
+				referenceId = 5000 + index;
+				break;
+		}
+
+		return {
+			id: index + 1,
+			imageUrl: `https://example.com/images/notification-${
+				index + 1
+			}.jpg`,
+			description: `This is a ${type.replace(
+				'_',
+				' '
+			)} related notification ${index + 1}`,
+			createdAt: new Date(Date.now() - index * 3600000).toISOString(), // Each 1 hour apart
+			type,
+			referenceId,
+		};
+	});
+
+// Get notifications list with pagination
+app.get('/api/v1/notifications', verifyToken, (req, res) => {
+	const page = parseInt(req.query.page) || 1;
+	const limit = parseInt(req.query.limit) || 10;
+
+	// Calculate pagination
+	const startIndex = (page - 1) * limit;
+	const endIndex = startIndex + limit;
+	const paginatedNotifications = notifications.slice(startIndex, endIndex);
+
+	res.status(200).json({
+		success: true,
+		message: 'Notifications retrieved successfully',
+		data: {
+			notifications: paginatedNotifications,
+			total: notifications.length,
+		},
+	});
+});
+
+// Mock data for consultations
+const consultations = Array(20)
+	.fill(null)
+	.map((_, index) => ({
+		id: index + 1,
+		expertName: `Dr. Expert ${index + 1}`,
+		expertImage: `https://example.com/experts/expert-${index + 1}.jpg`,
+		specialization: index % 2 === 0 ? 'Islamic Law' : 'Family Law',
+		bookingDate: new Date(Date.now() + (index - 10) * 24 * 60 * 60 * 1000)
+			.toISOString()
+			.split('T')[0],
+		bookingTime: `${10 + (index % 8)}:00 - ${11 + (index % 8)}:00`,
+		status: index < 5 ? 'pending' : index < 15 ? 'confirmed' : 'completed',
+		createdAt: new Date(
+			Date.now() - index * 24 * 60 * 60 * 1000
+		).toISOString(),
+	}));
+
+// Get consultations list with pagination
+app.get('/api/v1/consultations', verifyToken, (req, res) => {
+	const { type = 'upcoming', page = 1, limit = 10 } = req.query;
+
+	// Filter consultations based on type
+	let filteredConsultations = consultations;
+	const currentDate = new Date().toISOString().split('T')[0];
+
+	switch (type) {
+		case 'upcoming':
+			filteredConsultations = consultations.filter(
+				(c) => c.bookingDate >= currentDate && c.status !== 'completed'
+			);
+			break;
+		case 'requests':
+			filteredConsultations = consultations.filter(
+				(c) => c.status === 'pending'
+			);
+			break;
+		case 'past':
+			filteredConsultations = consultations.filter(
+				(c) => c.bookingDate < currentDate || c.status === 'completed'
+			);
+			break;
+	}
+
+	// Calculate pagination
+	const startIndex = (parseInt(page) - 1) * parseInt(limit);
+	const endIndex = startIndex + parseInt(limit);
+	const paginatedConsultations = filteredConsultations.slice(
+		startIndex,
+		endIndex
+	);
+
+	res.status(200).json({
+		success: true,
+		message: 'Consultations retrieved successfully',
+		data: {
+			consultations: paginatedConsultations,
+			total: filteredConsultations.length,
+		},
+	});
+});
+
+// Get consultation details
+app.get('/api/v1/consultations/:id', verifyToken, (req, res) => {
+	const consultationId = parseInt(req.params.id);
+	const consultation = consultations.find((c) => c.id === consultationId);
+
+	if (!consultation) {
+		return res.status(404).json({
+			success: false,
+			message: 'Consultation not found',
+			data: {},
+		});
+	}
+
+	// Add additional details for the full consultation view
+	const consultationDetails = {
+		...consultation,
+		experience: Math.floor(Math.random() * 20) + 5, // Random experience between 5-25 years
+		duration: 60, // 60 minutes consultation
+		meetingUrl: `https://meet.example.com/consultation-${consultationId}`,
+	};
+
+	res.status(200).json({
+		success: true,
+		message: 'Consultation details retrieved successfully',
+		data: {
+			consultation: consultationDetails,
+		},
+	});
+});
+
+// Cancel consultation
+app.post('/api/v1/consultations/:id/cancel', verifyToken, (req, res) => {
+	const consultationId = parseInt(req.params.id);
+	const consultation = consultations.find((c) => c.id === consultationId);
+
+	if (!consultation) {
+		return res.status(404).json({
+			success: false,
+			message: 'Consultation not found',
+			data: {},
+		});
+	}
+
+	if (consultation.status === 'completed') {
+		return res.status(400).json({
+			success: false,
+			message: 'Cannot cancel completed consultation',
+			data: {},
+		});
+	}
+
+	consultation.status = 'cancelled';
+
+	res.status(200).json({
+		success: true,
+		message: 'Consultation cancelled successfully',
+		data: {},
+	});
+});
+
+// Reschedule consultation
+app.post('/api/v1/consultations/:id/reschedule', verifyToken, (req, res) => {
+	const consultationId = parseInt(req.params.id);
+	const { bookingDate, bookingTime } = req.body;
+	const consultation = consultations.find((c) => c.id === consultationId);
+
+	if (!consultation) {
+		return res.status(404).json({
+			success: false,
+			message: 'Consultation not found',
+			data: {},
+		});
+	}
+
+	if (
+		consultation.status === 'completed' ||
+		consultation.status === 'cancelled'
+	) {
+		return res.status(400).json({
+			success: false,
+			message: `Cannot reschedule ${consultation.status} consultation`,
+			data: {},
+		});
+	}
+
+	consultation.bookingDate = bookingDate;
+	consultation.bookingTime = bookingTime;
+
+	const consultationDetails = {
+		...consultation,
+		experience: Math.floor(Math.random() * 20) + 5,
+		duration: 60,
+		meetingUrl: `https://meet.example.com/consultation-${consultationId}`,
+	};
+
+	res.status(200).json({
+		success: true,
+		message: 'Consultation rescheduled successfully',
+		data: {
+			consultation: consultationDetails,
+		},
+	});
+});
+
+// Mock data for experts
+const experts = Array(10).fill(null).map((_, index) => ({
+    id: index + 1,
+    name: `Dr. Expert ${index + 1}`,
+    imageUrl: `https://example.com/experts/expert-${index + 1}.jpg`,
+    specialization: index % 2 === 0 ? "Islamic Law" : "Family Law",
+    rate: 100 + (index * 50),
+    rateCurrency: "USD",
+    experience: 5 + (index % 15),
+    type: index % 2 === 0 ? "legal" : "shariah"
+}));
+
+// Get experts list with type filtering and pagination
+app.get('/api/v1/experts', verifyToken, (req, res) => {
+    const { type = 'legal', page = 1, limit = 10 } = req.query;
+
+    // Filter experts by type
+    const filteredExperts = experts.filter(expert => expert.type === type);
+
+    // Calculate pagination
+    const startIndex = (parseInt(page) - 1) * parseInt(limit);
+    const endIndex = startIndex + parseInt(limit);
+    const paginatedExperts = filteredExperts.slice(startIndex, endIndex);
+
+    res.status(200).json({
+        success: true,
+        message: 'Experts retrieved successfully',
+        data: {
+            experts: paginatedExperts,
+            total: filteredExperts.length
+        }
+    });
+});
+
+// Get expert's available time slots
+app.get('/api/v1/experts/:id/time-slots', verifyToken, (req, res) => {
+    const expertId = parseInt(req.params.id);
+    const date = req.query.date;
+
+    // Check if expert exists
+    const expert = experts.find(e => e.id === expertId);
+    if (!expert) {
+        return res.status(404).json({
+            success: false,
+            message: 'Expert not found',
+            data: {}
+        });
+    }
+
+    // Generate mock time slots (9 AM to 5 PM, 1-hour slots)
+    const timeSlots = [];
+    for (let hour = 9; hour < 17; hour++) {
+        // Randomly mark some slots as unavailable
+        const isAvailable = Math.random() > 0.3;
+        timeSlots.push({
+            startTime: `${hour.toString().padStart(2, '0')}:00`,
+            endTime: `${(hour + 1).toString().padStart(2, '0')}:00`,
+            isAvailable
+        });
+    }
+
+    res.status(200).json({
+        success: true,
+        message: 'Time slots retrieved successfully',
+        data: {
+            timeSlots
+        }
+    });
+});
+
+// Book consultation endpoint
+app.post('/api/v1/consultations/book', verifyToken, (req, res) => {
+    const { expertId, bookingDate, timeSlot, paymentToken } = req.body;
+
+    // Find expert
+    const expert = experts.find(e => e.id === expertId);
+    if (!expert) {
+        return res.status(404).json({
+            success: false,
+            message: 'Expert not found',
+            data: {}
+        });
+    }
+
+    // Mock validation of payment token
+    if (!paymentToken) {
+        return res.status(400).json({
+            success: false,
+            message: 'Invalid payment token',
+            data: {}
+        });
+    }
+
+    // Create new consultation
+    const newConsultation = {
+        id: consultations.length + 1,
+        expertName: expert.name,
+        expertImage: expert.imageUrl,
+        specialization: expert.specialization,
+        bookingDate,
+        bookingTime: timeSlot,
+        status: 'confirmed',
+        createdAt: new Date().toISOString(),
+        experience: expert.experience,
+        duration: 60,
+        meetingUrl: `https://meet.example.com/consultation-${consultations.length + 1}`
+    };
+
+    // Add to consultations array
+    consultations.push(newConsultation);
+
+    res.status(201).json({
+        success: true,
+        message: 'Consultation booked successfully',
+        data: {
+            consultation: newConsultation
+        }
+    });
 });
 
 app.listen(port, () => {
